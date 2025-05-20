@@ -49,8 +49,27 @@ Edit
 python -m venv venv
 source venv/bin/activate
 
+
 nstall Dependencies
 bash
 Copy
 Edit
 pip install -r requirements.txt
+Set Up MongoDB
+Ensure MongoDB is running locally or connect to a remote MongoDB instance.
+
+Update your MongoDB URI inside app.py:
+
+python
+Copy
+Edit
+app.config["MONGO_URI"] = "mongodb://localhost:27017/hospital"
+
+###3.🚀 Run the App
+bash
+Copy
+Edit
+python app.py
+Visit http://127.0.0.1:5000 in your browser.
+
+
