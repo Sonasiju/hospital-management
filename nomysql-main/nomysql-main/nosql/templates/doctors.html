@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Doctors
+{% endblock title %}
+
+{% block body %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+      {% with messages=get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+        {{message}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+      <br>
+      
+      {% if not current_user.is_authenticated or current_user.role != 'Doctor' %}
+        <div class="alert alert-danger">
+          Access restricted to doctors only
+        </div>
+      {% elif already_registered %}
+        <div class="alert alert-info">
+          You have already registered your specialization
+        </div>
+      {% else %}
+        <h2 class="text-center text-white bg-dark">Specialisation Registration</h2>
+        <br>
+        
+        <form action="/doctors" method="post" class="jumbotron">
+          <div class="form-group">
+            <input type="email" class="form-control" name="email" value="{{current_user.email}}" required readonly>
+          </div>
+          <div class="form-group">
+            <input type="text" class="form-control" name="doctorsname" placeholder="Doctor Name" required>
+          </div>
+          <div class="form-group">
+            <input type="text" class="form-control" name="dept" placeholder="Specialization (e.g., Cardiology)" required>
+          </div>
+          <button type="submit" class="btn btn-dark btn-sm btn-block">Register Specialization</button>
+        </form>
+      {% endif %}
+    </div>
+    <div class="col-md-4"></div>
+  </div>
+</div>
+{% endblock body %}

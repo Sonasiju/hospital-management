@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Appointments</h2>
+
+  {% if current_user.role == 'Doctor' %}
+    <h3>Your Patient Bookings</h3>
+    {% if bookings %}
+      <table class="table table-striped">
+        <thead class="thead-dark">
+          <tr>
+            <th>Patient</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Disease</th>
+            <th>Contact</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+            <tr>
+              <td>{{ booking.name }}</td>
+              <td>{{ booking.date }}</td>
+              <td>{{ booking.time }}</td>
+              <td>{{ booking.disease }}</td>
+              <td>{{ booking.number }}</td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="{{ url_for('prescribe', patient_id=booking._id) }}" 
+                     class="btn btn-success btn-sm">
+                     <i class="fas fa-prescription"></i> Prescribe
+                  </a>
+                  <a href="{{ url_for('view_prescriptions', patient_id=booking._id) }}" 
+                     class="btn btn-info btn-sm">
+                     <i class="fas fa-file-medical"></i> View Rx
+                  </a>
+                  <a href="{{ url_for('cancel_booking', booking_id=booking._id) }}" 
+                     class="btn btn-danger btn-sm">
+                     <i class="fas fa-times"></i> Cancel
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="alert alert-info">No appointments scheduled.</div>
+    {% endif %}
+
+  {% elif current_user.role == 'Patient' %}
+    <h3>Your Booked Appointments</h3>
+    {% if bookings %}
+      <table class="table table-striped">
+        <thead class="thead-dark">
+          <tr>
+            <th>Doctor</th>
+            <th>Department</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+            <tr>
+              <td>{{ booking.doctor_info.doctorsname if booking.doctor_info else 'N/A' }}</td>
+              <td>{{ booking.dept }}</td>
+              <td>{{ booking.date }}</td>
+              <td>{{ booking.time }}</td>
+              <td>
+                <span class="badge badge-{{ 'success' if booking.status == 'completed' else 'warning' }}">
+                  {{ booking.status|default('upcoming') }}
+                </span>
+              </td>
+              <td>
+                <div class="btn-group" role="group">
+                  <a href="{{ url_for('view_prescriptions', patient_id=booking._id) }}" 
+                     class="btn btn-primary btn-sm">
+                     <i class="fas fa-prescription-bottle-alt"></i> My Prescriptions
+                  </a>
+                  {% if booking.status != 'completed' %}
+                    <a href="{{ url_for('cancel_booking', booking_id=booking._id) }}" 
+                       class="btn btn-danger btn-sm">
+                       <i class="fas fa-times"></i> Cancel
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="alert alert-info">No appointments booked yet.</div>
+    {% endif %}
+  {% endif %}
+
+  <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">
+    <i class="fas fa-arrow-left"></i> Back to Dashboard
+  </a>
+{% endblock %}

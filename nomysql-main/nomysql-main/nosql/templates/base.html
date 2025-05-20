@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css">
+  <!-- External CSS -->
+  <link rel="stylesheet" href="static/css/style.css">
+  
+  {% block css %}{% endblock %}
+  <title>{% block title %}{% endblock %} - H.M.S</title>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">H.M.S</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="/">Home</a>
+        </li>
+  
+        <!-- Add this to your navigation section -->
+<!-- In the navigation section -->
+<!-- In the navigation section -->
+{% if current_user.is_authenticated %}
+  {% if current_user.role == "Doctor" %}
+    {% if not is_doctor_registered %}
+      <li class="nav-item">
+        <a class="nav-link" href="{{ url_for('doctors') }}">Register Specialization</a>
+      </li>
+    {% endif %}
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('bookings') }}">My Appointments</a>
+    </li>
+  {% elif current_user.role == "Patient" %}
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('patients') }}">Book Appointment</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{{ url_for('bookings') }}">My Bookings</a>
+    </li>
+  {% endif %}
+{% endif %}
+        <!-- Authentication Dropdown -->
+        {% if current_user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" 
+               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Welcome {{ current_user.username }}
+            </a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="/logout">Logout</a>
+            </div>
+          </li>
+        {% else %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="authDropdown" role="button" 
+               data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Authentication
+            </a>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="/signup">Signup</a>
+              <a class="dropdown-item" href="/login">Login</a>
+            </div>
+          </li>
+        {% endif %}
+      </ul>
+  
+     <!-- In the navigation section -->
+<form class="form-inline my-2 my-lg-0" action="{{ url_for('search') }}" method="POST">
+  <input class="form-control mr-sm-2" type="search" placeholder="Search doctors..." 
+         name="search" aria-label="Search" required>
+  <button class="btn btn-outline-dark my-2 my-sm-0" type="submit">Search</button>
+</form>
+      
+    </div>
+  </nav>
+  
+  {% block body %}{% endblock %}
+  
+  <footer class="footer mt-5">
+    <div class="container py-4">
+      <div class="row">
+        <!-- Contact Details Column -->
+        <div class="col-md-6">
+          <h5>Contact Details</h5>
+          <p>Email: contact@hospital.com</p>
+          <p>Phone: +1234567890</p>
+          <p>Address: 123 Hospital Road, City, Country</p>
+        </div>
+        <!-- Google Map Column -->
+        <div class="col-md-6">
+          <h5>Our Location</h5>
+          <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3942.0725083572565!2d76.63371707426663!3d8.872842291415346!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b05fcb3ce06a18b%3A0xb3e9914975770936!2sSRM%20Hospital!5e0!3m2!1sen!2sin!4v1741241872759!5m2!1sen!2sin" 
+            width="100%" 
+            height="250" 
+            frameborder="0" 
+            style="border:0;" 
+            allowfullscreen="" 
+            aria-hidden="false" 
+            tabindex="0">
+          </iframe>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 text-center mt-3">
+          <p>#SRNS 2025 </p>
+          <p>@All Rights Reserved.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  
+  <!-- Required JavaScript -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+</body>
+</html>

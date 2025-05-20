@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Patients Booking
+{% endblock title %}
+
+{% block body %}
+
+{% with messages=get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<div class="alert alert-{{category}} alert-dismissible fade show" role="alert">
+    {{message}}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="container mt-3">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card" style="width: 18rem;">
+                <img src="static/images/b2.jpg" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">HOSPITAL DOCTORS</h5>
+                    <p class="card-text">Available Specialists</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for dept in departments %}
+                    <li class="list-group-item">{{ dept }}</li>
+                    {% endfor %}
+                </ul>
+                <div class="card-body">
+                    <a href="#" class="card-link">Contact Us</a>
+                    <a href="#" class="card-link">About Us</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5">
+            <h4 class="text-center bg-dark text-white">Book Your Slot</h4>
+            <br>
+
+            <form action="/patients" method="post" class="jumbotron">
+                <div class="form-group">
+                    <input type="email" class="form-control" id="email" value="{{ current_user.email }}" name="email" required readonly>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Full Name" required>
+                </div>
+
+                <div class="form-group">
+                    <select class="form-control" id="gender" name="gender" required>
+                        <option selected disabled>Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <select class="form-control" id="slot" name="slot" required>
+                        <option selected disabled>Select Slot</option>
+                        <option value="morning">Morning</option>
+                        <option value="evening">Evening</option>
+                        <option value="night">Night</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <input type="time" class="form-control" id="time" name="time" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="date" class="form-control" id="date" name="date" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="text" class="form-control" id="disease" name="disease" placeholder="Disease" required>
+                </div>
+
+                <div class="form-group">
+                    <select class="form-control" id="dept" name="dept" required>
+                        <option value="" disabled selected>Select Department</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept }}">{{ dept }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <select class="form-control" id="doctor_email" name="doctor_email" required>
+                        <option value="" disabled selected>Select Doctor</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <input type="number" class="form-control" id="number" name="number" placeholder="Phone Number" required>
+                </div>
+
+                <button type="submit" id="btn" class="btn btn-dark btn-sm btn-block">Book</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for dynamic doctor selection and time restrictions -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Get the slot and time input elements
+    let slotSelect = document.getElementById("slot");
+    let timeInput = document.getElementById("time");
+    let dateInput = document.getElementById("date");
+    let deptSelect = document.getElementById("dept");
+    let doctorSelect = document.getElementById("doctor_email");
+
+    // Restrict Date Selection to Future Dates Only
+    let today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
+
+    // Restrict Time Selection Based on Slot
+    slotSelect.addEventListener("change", function() {
+        let selectedSlot = slotSelect.value;
+
+        if (selectedSlot === "morning") {
+            timeInput.setAttribute("min", "24:00");
+            timeInput.setAttribute("max", "11:59");
+        } 
+        else if (selectedSlot === "evening") {
+            timeInput.setAttribute("min", "12:00");
+            timeInput.setAttribute("max", "18:59");
+        } 
+        else if (selectedSlot === "night") {
+            timeInput.setAttribute("min", "19:00");
+            timeInput.setAttribute("max", "23:59");
+        } 
+        else {
+            timeInput.removeAttribute("min");
+            timeInput.removeAttribute("max");
+        }
+    });
+
+    // Dynamic doctor selection based on department
+    deptSelect.addEventListener("change", function() {
+        let department = deptSelect.value;
+        doctorSelect.innerHTML = '<option value="" disabled selected>Select Doctor</option>';
+        
+        if (department) {
+            fetch(`/get_doctors/${department}`)
+                .then(response => response.json())
+                .then(data => {
+                    data.doctors.forEach(doctor => {
+                        let option = document.createElement("option");
+                        option.value = doctor.email;
+                        option.textContent = doctor.doctorsname;
+                        doctorSelect.appendChild(option);
+                    });
+                });
+        }
+    });
+});
+</script>
+
+{% endblock body %}

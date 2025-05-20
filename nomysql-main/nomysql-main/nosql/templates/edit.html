@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Edit Booking
+{% endblock title %}
+
+{% block body %}
+<div class="container mt-3">
+    <h4 class="text-center bg-dark text-white">Edit Your Booking</h4>
+    <br>
+    
+    <form action="/edit/{{ posts._id }}" method="post" class="jumbotron" onsubmit="return validateBooking()">
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="form-control" id="email" value="{{ posts.email }}" name="email" required readonly>
+        </div>
+
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ posts.name }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Gender</label>
+            <select class="form-control" id="gender" name="gender" required>
+                <option value="{{ posts.gender }}" selected>{{ posts.gender }}</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Others">Others</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Time Slot</label>
+            <select class="form-control" id="slot" name="slot" required>
+                <option value="{{ posts.slot }}" selected>{{ posts.slot }}</option>
+                <option value="morning">Morning (8AM-12PM)</option>
+                <option value="afternoon">Afternoon (12PM-4PM)</option>
+                <option value="evening">Evening (4PM-8PM)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Appointment Time</label>
+            <input type="time" class="form-control" id="time" name="time" value="{{ posts.time }}" min="08:00" max="20:00" required>
+            <small class="form-text text-muted">Clinic hours: 8AM to 8PM</small>
+        </div>
+
+        <div class="form-group">
+            <label>Appointment Date</label>
+            <input type="date" class="form-control" id="date" name="date" value="{{ posts.date }}" min="{{ current_date }}" required>
+            <small class="form-text text-muted">Cannot book for past dates</small>
+        </div>
+
+        <div class="form-group">
+            <label>Medical Concern</label>
+            <input type="text" class="form-control" id="disease" name="disease" value="{{ posts.disease }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Department</label>
+            <input type="text" class="form-control" value="{{ posts.dept }}" readonly>
+            <input type="hidden" name="dept" value="{{ posts.dept }}">
+        </div>
+        
+        <div class="form-group">
+            <label>Assigned Doctor</label>
+            <input type="text" class="form-control" value="{{ doctor_name }}" readonly>
+            <input type="hidden" name="doctor_email" value="{{ posts.doctor_email }}">
+        </div>
+
+        <div class="form-group">
+            <label>Phone Number</label>
+            <input type="number" class="form-control" id="number" name="number" value="{{ posts.number }}" pattern="[0-9]{10}" title="10 digit phone number" required>
+        </div>
+
+        <button type="submit" class="btn btn-dark btn-sm btn-block">Update Booking</button>
+    </form>
+</div>
+
+<script>
+// Set minimum date to today
+document.getElementById('date').min = new Date().toISOString().split('T')[0];
+
+// Time slot validation
+document.getElementById('slot').addEventListener('change', function() {
+    const timeInput = document.getElementById('time');
+    const slot = this.value;
+    
+    // Set suggested times based on slot
+    if (slot === 'morning') {
+        timeInput.value = '09:00';
+        timeInput.min = '08:00';
+        timeInput.max = '11:59';
+    } else if (slot === 'afternoon') {
+        timeInput.value = '13:00';
+        timeInput.min = '12:00';
+        timeInput.max = '15:59';
+    } else if (slot === 'evening') {
+        timeInput.value = '17:00';
+        timeInput.min = '16:00';
+        timeInput.max = '20:00';
+    }
+});
+
+function validateBooking() {
+    const dateInput = document.getElementById('date');
+    const selectedDate = new Date(dateInput.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate < today) {
+        alert("Cannot book appointments for past dates");
+        return false;
+    }
+    
+    const timeInput = document.getElementById('time');
+    const hours = parseInt(timeInput.value.split(':')[0]);
+    
+    // Validate time against slot
+    const slot = document.getElementById('slot').value;
+    if ((slot === 'morning' && (hours < 8 || hours >= 12)) ||
+        (slot === 'afternoon' && (hours < 12 || hours >= 16)) ||
+        (slot === 'evening' && (hours < 16 || hours > 20))) {
+        alert("Selected time doesn't match the chosen slot");
+        return false;
+    }
+    
+    return true;
+}
+</script>
+
+<style>
+/* Make readonly fields visually distinct */
+.form-control[readonly] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+</style>
+{% endblock body %}
